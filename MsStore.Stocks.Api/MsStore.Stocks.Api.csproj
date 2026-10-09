@@ -14,6 +14,7 @@
       <Folder Include="Clients\" />
       <Folder Include="Controllers\" />
       <Folder Include="Domain\" />
+      <Folder Include="Enum\" />
       <Folder Include="InternalContracts\" />
       <Folder Include="Services\" />
       <Folder Include="StocksDbContext\" />
