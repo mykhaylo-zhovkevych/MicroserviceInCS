@@ -7,16 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Controllers\" />
-      <Folder Include="Domain\" />
-      <Folder Include="Enum\" />
-      <Folder Include="InternalContracts\" />
-      <Folder Include="Services\" />
-      <Folder Include="UsersDbContext\" />
+        <PackageReference Include="Bogus" Version="35.6.5" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
     </ItemGroup>
 
 </Project>
