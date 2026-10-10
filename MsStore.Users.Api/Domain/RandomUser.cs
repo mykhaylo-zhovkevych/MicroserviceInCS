@@ -8,5 +8,5 @@ public class RandomUser
     public required string Name { get; set; }
     public string? Email { get; set; }
     public string? AvatarUrl { get; set; }
-    public UsersType Type { get; set; }
+    public UsersType RType { get; set; }
 }

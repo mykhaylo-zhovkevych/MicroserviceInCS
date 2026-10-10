@@ -13,7 +13,7 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContex
         modelBuilder.Entity<RandomUser>(u =>
         {
             u.HasIndex(x => x.Id).IsUnique();
-            u.Property(x => x.Type).HasConversion<string>().HasMaxLength(16);
+            u.Property(x => x.RType).HasConversion<string>().HasMaxLength(16);
         });
     }
 }
