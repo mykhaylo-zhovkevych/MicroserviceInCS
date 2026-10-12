@@ -1,4 +1,4 @@
-namespace MsStore.Orders.Api.Enum;
+namespace MsStore.Orders.Api.Client.Results;
 
 public enum DeleteStockResult
 {

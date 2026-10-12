@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MsStore.Orders.Api.Client;
 using MsStore.Orders.Api.Data;
 using MsStore.Orders.Api.Domain;
-using MsStore.Orders.Api.Enum;
+using MsStore.Orders.Api.Client.Results;
 using MsStore.Orders.Api.InternalContracts;
 
 namespace MsStore.Orders.Api.Controllers;

@@ -1,6 +1,6 @@
 using Bogus;
 using MsStore.Users.Api.Domain;
-using MsStore.Users.Api.Enum;
+using MsStore.Users.Api.Domain.Enums;
 
 namespace MsStore.Users.Api.Services;
 

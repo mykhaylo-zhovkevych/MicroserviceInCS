@@ -1,4 +1,4 @@
-using MsStore.Orders.Api.Enum;
+using MsStore.Orders.Api.Client.Results;
 
 namespace MsStore.Orders.Api.Client;
 

@@ -1,4 +1,4 @@
-namespace MsStore.Users.Api.Enum;
+namespace MsStore.Users.Api.Domain.Enums;
 
 public enum UsersType
 {

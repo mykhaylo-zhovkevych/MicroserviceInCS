@@ -1,4 +1,4 @@
-using MsStore.Users.Api.Enum;
+using MsStore.Users.Api.Domain.Enums;
 
 namespace MsStore.Users.Api.Domain;
 

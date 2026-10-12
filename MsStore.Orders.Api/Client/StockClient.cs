@@ -1,6 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
-using MsStore.Orders.Api.Enum;
+using MsStore.Orders.Api.Client.Results;
 
 namespace MsStore.Orders.Api.Client;
 
