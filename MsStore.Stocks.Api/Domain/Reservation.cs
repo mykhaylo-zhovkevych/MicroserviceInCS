@@ -8,11 +8,12 @@ namespace MsStore.Stocks.Api.Domain;
 [Index(nameof(ReservedByUserId))]
 public class Reservation
 {
-    public int Id { get; set; }
+    [Key]
+    public Guid Id { get; set; }
 
     [MaxLength(64)]
     public required string Category { get; set; }
-    public int ReservedByUserId { get; set; }
+    public required int ReservedByUserId { get; set; }
 
     [Column(TypeName = "nvarchar(16)")]
     public ReservationStatus Status { get; set; } = ReservationStatus.Active;
