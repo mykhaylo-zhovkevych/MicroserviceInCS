@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using MsStore.Stocks.Api.Domain;
 using MsStore.Stocks.Api.InternalContracts;
@@ -38,4 +39,14 @@ public class StockContoller(InventoryService inventoryService) : ControllerBase
         BatchStock? batch = await inventoryService.GetBatchAsync(productId);
         return batch is null ? NotFound() : batch;
     }
+
+    // I need try all those things
+    [HttpPost("batches/{productId:int}/give-back")]
+    public async Task<IActionResult> GiveBack(int productId, [FromQuery, Range(1, int.MaxValue)] int quantity)
+    {
+        
+    }
+    
+    
+    
 }

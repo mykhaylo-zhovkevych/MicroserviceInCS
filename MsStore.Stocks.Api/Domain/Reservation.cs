@@ -12,8 +12,6 @@ public class Reservation
 
     [MaxLength(64)]
     public required string Category { get; set; }
-
-    // The Id comes from Users.Api
     public int ReservedByUserId { get; set; }
 
     [Column(TypeName = "nvarchar(16)")]

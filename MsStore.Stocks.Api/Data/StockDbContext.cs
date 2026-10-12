@@ -9,4 +9,5 @@ public class StockDb(DbContextOptions<StockDb> options) : DbContext(options)
     public DbSet<Batch> Batches => Set<Batch>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<ReservationLine> ReservationLines => Set<ReservationLine>();
+    public DbSet<UserReplica> Users => Set<UserReplica>();
 }
