@@ -11,6 +11,7 @@ namespace MsStore.Stocks.Api.Controllers;
 public class StockController(IInventoryService inventoryService, IReservationService reservationService) : ControllerBase
 {
     [HttpPost("batches")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> CreateBatch(CreateBatchRequest req)
     {
         CreatedBatchResult batchResult = await inventoryService.CreateBatchAsync(req.ProductId, req.Category, req.Quantity);
@@ -24,6 +25,7 @@ public class StockController(IInventoryService inventoryService, IReservationSer
     }
 
     [HttpGet("batches")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<ActionResult<List<BatchStock>>> GetBatches()
     {
         List<BatchStock> batches = await inventoryService.GetBatchesAsync();

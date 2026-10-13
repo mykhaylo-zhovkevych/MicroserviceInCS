@@ -1,0 +1,64 @@
+# One SQL Server pod for the cluster. Each API still has its OWN database on it
+# (StoreUsersDb, StoreStockDb, StoreOrdersV2) - created by EnsureCreated on startup.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mssql-data
+  namespace: msstore
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql
+  namespace: msstore
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate            # never two SQL Servers on the same data volume
+  selector:
+    matchLabels: { app: mssql }
+  template:
+    metadata:
+      labels: { app: mssql }
+    spec:
+      securityContext:
+        fsGroup: 10001        # the mssql user inside the image must be able to write the volume
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                # msstore-db it's just name
+                secretKeyRef: { name: msstore-db, key: sa-password }
+          resources:
+            requests:
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mssql-data
+---
+# DNS name "mssql" inside the namespace -> connection strings use Server=mssql,1433
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql
+  namespace: msstore
+spec:
+  selector: { app: mssql }
+  ports:
+    - port: 1433
+      targetPort: 1433
