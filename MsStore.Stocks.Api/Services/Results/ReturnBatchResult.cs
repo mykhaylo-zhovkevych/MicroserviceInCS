@@ -1,8 +1,8 @@
 namespace MsStore.Stocks.Api.Services.Results;
 
-public enum TakeResult
+public enum ReturnBatchResult
 {
-    Taken,
-    BatchNotFound,
+    Returned,
+    NotFound,
     NotEnough
 }

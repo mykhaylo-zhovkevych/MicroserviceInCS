@@ -1,9 +1,8 @@
 namespace MsStore.Stocks.Api.Services.Results;
 
-public enum ReleaseResult
+public enum ReleaseReservationResult
 {
     Released,
     NotFound,
-    NotOwner,
     AlreadyReleased
 }

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MsStore.Orders.Api.Client;
@@ -20,21 +21,17 @@ public class OrderController(OrdersDbContext db, IStockClient stockClient) : Con
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(int productId, int quantity)
+    public async Task<IActionResult> Create(int productId, [FromQuery, Range(1,20)] int quantity)
     {
-        if (quantity <= 0)
-        {
-            return BadRequest("Quantity must be positive");
-        }
         
-        // price comes from my own database
+        // Price comes from my own database
         Product? product = await db.Products.FindAsync(productId);
         if (product is null)
         {
             return NotFound($"Product {productId} does not exist");
         }
 
-        switch (await stockClient.TakeFromBatchAsync(productId, quantity))
+        switch (await stockClient.TakeBatchAsync(productId, quantity))
         {
             case TakeStockResult.NotEnough:
                 return Conflict("Not enough available stock (reserved units cannot be ordered)");
@@ -59,10 +56,9 @@ public class OrderController(OrdersDbContext db, IStockClient stockClient) : Con
         }
         catch
         {
-            await stockClient.GiveBackAsync(productId, quantity);
+            await stockClient.ReturnBatchAsync(productId, quantity);
             throw;
         }
-
         return Ok(order);
     }
 }

@@ -89,7 +89,7 @@ public class ProductController(OrdersDbContext db, IStockClient stockClient) : C
             return NotFound();
         }
 
-        switch (await stockClient.DeleteFromBatchAsync(id))
+        switch (await stockClient.DeleteBatchAsync(id))
         {
             case DeleteStockResult.HasActiveReservation:
                 return Conflict("Product has active reservers.");

@@ -6,9 +6,10 @@ namespace MsStore.Stocks.Api.Domain;
 public class ReservationLine
 {
     public int Id { get; set; }
-    public int ReservationId { get; set; }
-    public Reservation Reservation { get; set; } = null!;
-
-    // the Id comes from Orders.Api
+    public Guid UserReservationId { get; set; }
+    public UserReservation UserReservation { get; set; } = null!;
     public int ProductIdRef { get; set; }
+
+    // How much was taken from this batch, so a release can put exactly that back
+    public int Quantity { get; set; }
 }

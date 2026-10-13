@@ -1,6 +1,6 @@
 namespace MsStore.Stocks.Api.Services.Results;
 
-public enum CreatedResult
+public enum CreatedBatchResult
 {
     Created,
     AlreadyExists

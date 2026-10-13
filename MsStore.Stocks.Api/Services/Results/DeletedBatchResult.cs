@@ -1,6 +1,6 @@
 namespace MsStore.Stocks.Api.Services.Results;
 
-public enum DeletedResult
+public enum DeletedBatchResult
 {
     Deleted,
     NotFound,

@@ -7,11 +7,11 @@ using MsStore.Stocks.Api.Mapping;
 namespace MsStore.Stocks.Api.Services;
 
 // Keeps the local UserReplica table in line with Users.Api, so reservations can check users without a network call
-public class UserSyncService(StockDb db, UserClient userClient)
+public class UserSyncService(StockDbContext dbContext, UserClient userClient)
 {
     public async Task<List<UserReplica>> GetUsersAsync()
     {
-        return await db.Users
+        return await dbContext.Users
             .AsNoTracking()
             .OrderBy(u => u.Id)
             .ToListAsync();
@@ -26,7 +26,7 @@ public class UserSyncService(StockDb db, UserClient userClient)
         }
 
         // One query for all replicas instead of a FindAsync per user
-        Dictionary<int, UserReplica> replicas = await db.Users.ToDictionaryAsync(u => u.Id);
+        Dictionary<int, UserReplica> replicas = await dbContext.Users.ToDictionaryAsync(u => u.Id);
 
         foreach (UserResponse remote in remoteUsers)
         {
@@ -36,11 +36,11 @@ public class UserSyncService(StockDb db, UserClient userClient)
             }
             else
             {
-                db.Users.Add(remote.ToReplica());
+                dbContext.Users.Add(remote.ToReplica());
             }
         }
 
-        await db.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
         return remoteUsers.Count;
     }
 }

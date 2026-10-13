@@ -6,7 +6,7 @@ using MsStore.Stocks.Api.Domain.Enums;
 namespace MsStore.Stocks.Api.Domain;
 
 [Index(nameof(ReservedByUserId))]
-public class Reservation
+public class UserReservation
 {
     [Key]
     public Guid Id { get; set; }

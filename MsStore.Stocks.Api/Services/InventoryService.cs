@@ -1,16 +1,22 @@
+using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Mvc;
+using MsStore.Stocks.Api.Clients;
+using MsStore.Stocks.Api.Data;
+using MsStore.Stocks.Api.Domain;
+using MsStore.Stocks.Api.Domain.Enums;
 using MsStore.Stocks.Api.InternalContracts;
 using MsStore.Stocks.Api.Services.Results;
 
 namespace MsStore.Stocks.Api.Services;
 
-public class InventoryService
+public class InventoryService(StockDbContext db))
 {
 
-    public Task<CreatedResult> CreateBatchAsync(int productId, string category, int quantity)
+    public Task<CreatedBatchResult> CreateBatchAsync(int productId, string category, int quantity)
     {
         throw new NotImplementedException();
     }
-
+    
     public Task<List<BatchStock>> GetBatchesAsync()
     {
         throw new NotImplementedException();
@@ -21,28 +27,32 @@ public class InventoryService
         throw new NotImplementedException();
     }
 
-    public Task<DeletedResult> DeleteBatchAsync(int productId)
+    public Task<DeletedBatchResult> DeleteBatchAsync(int productId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<TakeResult> TakeBatchAsync(int productId, int quantity)
+    public Task<TakeBatchResult> TakeBatchAsync(int productId, int quantity)
     {
         throw new NotImplementedException();
     }
 
+    public Task ReturnBatchAsync()
+    {
+        throw new NotImplementedException();
+    }
+    
     public Task<bool> GiveBackAsync(int productId, int quantity)
     {
         throw new NotImplementedException();
     }
-
-    // Reservations
+    
     public Task<(CreatedReserveResult Result, ReservationResponse? Reservation)> ReserveBatchAsync(string category, int quantity, int userId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ReleaseResult> ReservationReleaseAsync(Guid id)
+    public Task<ReleaseReservationResult> ReservationReleaseAsync(Guid id)
     {
         throw new NotImplementedException();
     }

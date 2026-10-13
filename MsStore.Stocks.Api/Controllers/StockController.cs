@@ -5,20 +5,18 @@ using MsStore.Stocks.Api.Domain;
 using MsStore.Stocks.Api.InternalContracts;
 using MsStore.Stocks.Api.Services;
 using MsStore.Stocks.Api.Services.Results;
-using CreatedResult = MsStore.Stocks.Api.Services.Results.CreatedResult;
 
 namespace MsStore.Stocks.Api.Controllers;
 
 [ApiController]
 [Route ("api/[controller]")]
-public class StockContoller(InventoryService inventoryService) : ControllerBase
+public class StockController(InventoryService inventoryService) : ControllerBase
 {
-
     [HttpPost("batches")]
     public async Task<IActionResult> CreateBatch(CreateBatchRequest req)
     {
-        CreatedResult result = await inventoryService.CreateBatchAsync(req.ProductId, req.Category, req.Quantity);
-        if (result == CreatedResult.AlreadyExists)
+        CreatedBatchResult batchResult = await inventoryService.CreateBatchAsync(req.ProductId, req.Category, req.Quantity);
+        if (batchResult == CreatedBatchResult.AlreadyExists)
         {
             return Conflict($"Batch for product {req.ProductId} already exists, quantity can be added only once");
         }
@@ -31,7 +29,7 @@ public class StockContoller(InventoryService inventoryService) : ControllerBase
     public async Task<ActionResult<List<BatchStock>>> GetBatches()
     {
         List<BatchStock> batches = await inventoryService.GetBatchesAsync();
-        return batches is null ? NotFound() : batches;
+        return batches;
     }
     
     [HttpGet("batches/{productId:int}")]
@@ -46,8 +44,9 @@ public class StockContoller(InventoryService inventoryService) : ControllerBase
     {
         return await inventoryService.DeleteBatchAsync(productId) switch
         {
-            DeletedResult.NotFound => NotFound(),
-            DeletedResult.HasActiveReservations => Conflict("Batch has active reservations, release them first"),
+            DeletedBatchResult.NotFound => NotFound(),
+            DeletedBatchResult.HasActiveReservations => Conflict("Batch has active reservations, release them first"),
+            DeletedBatchResult.Deleted => NoContent(),
             _ => NotFound()
         };
     }
@@ -57,13 +56,13 @@ public class StockContoller(InventoryService inventoryService) : ControllerBase
     {
         return await inventoryService.TakeBatchAsync(productId, quantity) switch
         {
-            TakeResult.BatchNotFound => NotFound(),
-            TakeResult.NotEnough => Conflict("Not enough available stock"),
+            TakeBatchResult.NotFound => NotFound(),
+            TakeBatchResult.NotEnough => Conflict("Not enough available stock"),
             _ => Ok(await inventoryService.GetBatchAsync(productId))
         };
     }
     
-    [HttpPost("batches/{productId:int}/give-back")]
+    [HttpPost("batches/{productId:int}/return")]
     public async Task<IActionResult> GiveBack(int productId, [FromQuery, Range(1, 20)] int quantity)
     {
         return await inventoryService.GiveBackAsync(productId, quantity)
@@ -78,7 +77,7 @@ public class StockContoller(InventoryService inventoryService) : ControllerBase
         return result switch
         {
             CreatedReserveResult.UsersApiUnavailable => StatusCode(StatusCodes.Status503ServiceUnavailable, "Store.Users.Api is not reachable"),
-            CreatedReserveResult.UserNotFound => BadRequest($"User {req.UserId} does not exist, nothing was reserved"),
+            CreatedReserveResult.NotFound => BadRequest($"User {req.UserId} does not exist, nothing was reserved"),
             CreatedReserveResult.NotEnough => Conflict($"Not enough available '{req.Category}' across all batches, nothing was reserved"),
             _ => CreatedAtAction(nameof(GetReservation), new { id = reservation!.Id }, reservation)
         };
@@ -89,9 +88,8 @@ public class StockContoller(InventoryService inventoryService) : ControllerBase
     {
         return await inventoryService.ReservationReleaseAsync(id) switch
         {
-            ReleaseResult.NotFound => NotFound(),
-            ReleaseResult.AlreadyReleased => Conflict("Reservation cannot be released"),
-            ReleaseResult.NotOwner => Conflict(""),
+            ReleaseReservationResult.NotFound => NotFound(),
+            ReleaseReservationResult.AlreadyReleased => Conflict("Reservation cannot be released"),
             _ => NoContent()
         };
     }
@@ -100,8 +98,7 @@ public class StockContoller(InventoryService inventoryService) : ControllerBase
     public async Task<ActionResult<List<ReservationResponse>>> GetReservations(int? userId, string? category)
     {
         List<ReservationResponse> reservations = await inventoryService.GetReservationsAsync(userId, category);
-        return reservations is null ? NoContent() : Ok(reservations);
-
+        return reservations;
     }
 
     [HttpGet("reservations/{id:guid}")]
@@ -110,5 +107,4 @@ public class StockContoller(InventoryService inventoryService) : ControllerBase
         ReservationResponse? reservation = await inventoryService.GetReservationAsync(id);
         return reservation is null ? NotFound() : Ok(reservation);
     }
-
 }

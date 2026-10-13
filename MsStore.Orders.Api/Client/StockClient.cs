@@ -22,7 +22,20 @@ public class StockClient(HttpClient http) : IStockClient
             return false;
         }
     }
-    
+
+    public async Task<bool> ReturnBatchAsync(int productId, int quantity)
+    {
+        try
+        {
+            HttpResponseMessage res = await http.PostAsJsonAsync($"api/stock/batches/{productId}/return", new { productId, quantity });
+            return res.IsSuccessStatusCode;
+        }
+        catch (HttpRequestException)
+        {
+            return false;
+        }
+    }
+
     public async Task<bool> GiveBackAsync(int productId, int quantity)
     {
         try
@@ -61,7 +74,7 @@ public class StockClient(HttpClient http) : IStockClient
         }
     }
 
-    public async Task<TakeStockResult> TakeFromBatchAsync(int productId, int quantity)
+    public async Task<TakeStockResult> TakeBatchAsync(int productId, int quantity)
     {
         try
         {
@@ -80,7 +93,7 @@ public class StockClient(HttpClient http) : IStockClient
         }        
     }
 
-    public async Task<DeleteStockResult> DeleteFromBatchAsync(int productId)
+    public async Task<DeleteStockResult> DeleteBatchAsync(int productId)
     {
         try
         {

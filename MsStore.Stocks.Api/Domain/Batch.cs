@@ -19,7 +19,8 @@ public class Batch
     // A string column type makes EF store the enum as "OnHold" instead of 0..3
     [Column(TypeName = "nvarchar(20)")]
     public BatchStatus Status { get; set; } = BatchStatus.Available;
-    public uint OnHand { get; set; }
+    public uint InStock { get; set; }
+     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ExpectedAt { get; set; }
     public DateTime? ReceivedAt { get; set; }
