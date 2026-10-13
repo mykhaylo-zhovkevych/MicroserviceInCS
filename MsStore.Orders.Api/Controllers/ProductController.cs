@@ -58,7 +58,7 @@ public class ProductController(OrdersDbContext db, IStockClient stockClient) : C
         {
             db.Products.Remove(product);
             await db.SaveChangesAsync();
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Stock Api did not created the batch, thereafter product has not been created.");
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Stock Api did not created the batch, therefor product has not been created.");
         }
         return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, ToStyleResponse(product, await stockClient.GetBatchAsync(product.Id)));
     }
@@ -105,6 +105,6 @@ public class ProductController(OrdersDbContext db, IStockClient stockClient) : C
     
 
     private static ProductStyleResponse ToStyleResponse(Product product, StockBatch? stock) 
-        => new (product.Id, product.Category, product.Name, product.Description, product.Price, stock.OnHand, stock.Reserved, stock.Available);
+        => new (product.Id, product.Category, product.Name, product.Description, product.Price, stock?.Available, stock?.Capacity);
     
 }

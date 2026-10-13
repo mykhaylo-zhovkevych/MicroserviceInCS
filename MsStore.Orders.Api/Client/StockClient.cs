@@ -5,16 +5,16 @@ using MsStore.Orders.Api.Client.Results;
 namespace MsStore.Orders.Api.Client;
 
 // Represents an intermediate exchange value
-public record StockBatch(int ProductId, string Sku, int OnHand, int Reserved, int Available);
+public record StockBatch(int ProductId, string Category, int InStock, int Available, int Capacity);
 
 
 public class StockClient(HttpClient http) : IStockClient
 {
-    public async Task<bool> CreateBatchAsync(int productId, string category, int qunatity)
+    public async Task<bool> CreateBatchAsync(int productId, string category, int quantity)
     {
         try
         {
-            HttpResponseMessage res = await http.PostAsJsonAsync("api/stock/batches", new { productId, category, qunatity });
+            HttpResponseMessage res = await http.PostAsJsonAsync("api/stock/batches", new { productId, category, quantity});
             return res.IsSuccessStatusCode;
         }
         catch (HttpRequestException)
@@ -27,20 +27,7 @@ public class StockClient(HttpClient http) : IStockClient
     {
         try
         {
-            HttpResponseMessage res = await http.PostAsJsonAsync($"api/stock/batches/{productId}/return", new { productId, quantity });
-            return res.IsSuccessStatusCode;
-        }
-        catch (HttpRequestException)
-        {
-            return false;
-        }
-    }
-
-    public async Task<bool> GiveBackAsync(int productId, int quantity)
-    {
-        try
-        {
-            HttpResponseMessage res = await http.PostAsJsonAsync($"api/stock/batches/{productId}/return", new { quantity });
+            HttpResponseMessage res = await http.PostAsync($"api/stock/batches/{productId}/return?quantity={quantity}", null);
             return res.IsSuccessStatusCode;
         }
         catch (HttpRequestException)
@@ -78,18 +65,18 @@ public class StockClient(HttpClient http) : IStockClient
     {
         try
         {
-            HttpResponseMessage res = await http.PostAsJsonAsync($"api/stock/batches/{productId}/take", new { quantity });
+            HttpResponseMessage res = await http.PostAsync($"api/stock/batches/{productId}/take?quantity={quantity}", null);
             return res.StatusCode switch
             {
-                HttpStatusCode.Accepted => TakeStockResult.Taken,
-                HttpStatusCode.Conflict => TakeStockResult.Unavailable,
+                HttpStatusCode.OK => TakeStockResult.Taken,
+                HttpStatusCode.Conflict => TakeStockResult.NotEnough,
                 HttpStatusCode.NotFound => TakeStockResult.NotFound,
                 _ => TakeStockResult.Unavailable
             };
         }
         catch (HttpRequestException)
         {
-            return TakeStockResult.NotEnough;
+            return TakeStockResult.Unavailable;
         }        
     }
 

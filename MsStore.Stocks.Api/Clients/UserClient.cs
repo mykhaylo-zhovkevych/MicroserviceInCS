@@ -1,8 +1,10 @@
+using System.Text.Json.Serialization;
 using MsStore.Stocks.Api.Domain.Enums;
 
 namespace MsStore.Stocks.Api.Clients;
 
-public record UserResponse(int Id, string FullName, string? Email, UserType Type);
+// Users.Api sends the name as "name", it is called FullName on this side
+public record UserResponse(int Id, [property: JsonPropertyName("name")] string FullName, string? Email, UserType Type);
 
 // As for right now I can have access to the another service, by using it's url, this is only one option
 public class UserClient(HttpClient http)

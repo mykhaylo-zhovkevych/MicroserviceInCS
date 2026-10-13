@@ -20,7 +20,6 @@ public record ProductStyleResponse(
     string Name,
     string Description,
     decimal Price,
-    int? OnHand,
-    int? Reserved,
-    int? Available);
+    int? Available,
+    int? Capacity);
 

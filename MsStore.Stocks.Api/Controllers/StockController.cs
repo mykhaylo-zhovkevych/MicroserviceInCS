@@ -67,6 +67,7 @@ public class StockController(IInventoryService inventoryService, IReservationSer
         return await inventoryService.ReturnBatchAsync(productId, quantity) switch
         {
             ReturnBatchResult.NotFound => NotFound(),
+            ReturnBatchResult.ExceedsCapacity => Conflict("Cannot return more than the batch can hold"),
             ReturnBatchResult.Returned => Ok(await inventoryService.GetBatchAsync(productId)),
             _ => throw new ArgumentOutOfRangeException()
         };

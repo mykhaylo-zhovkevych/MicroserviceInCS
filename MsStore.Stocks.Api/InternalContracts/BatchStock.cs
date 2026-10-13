@@ -3,7 +3,7 @@ using MsStore.Stocks.Api.Domain.Enums;
 
 namespace MsStore.Stocks.Api.InternalContracts;
 
-public record BatchStock(int ProductId, string Category, int Available) : BatchBase(Category, Available);
+public record BatchStock(int ProductId, string Category, int Available, int Capacity) : BatchBase(Category, Available);
 
 
 public record CreateBatchRequest(int ProductId, [Required, MaxLength(64)] string Category, [Range(1, 20)] int Quantity);

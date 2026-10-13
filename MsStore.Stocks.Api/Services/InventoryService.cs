@@ -18,7 +18,7 @@ public class InventoryService(StockDbContext db) : IInventoryService
             return CreatedBatchResult.AlreadyExists;
         }
 
-        db.Batches.Add(new Batch { ProductId = productId, Category = category, InStock = (uint)quantity });
+        db.Batches.Add(new Batch { ProductId = productId, Category = category, InStock = (uint)quantity, Capacity = (uint)quantity });
         await db.SaveChangesAsync();
         return CreatedBatchResult.Created;
     }
@@ -83,6 +83,16 @@ public class InventoryService(StockDbContext db) : IInventoryService
         if (batch is null)
         {
             return ReturnBatchResult.NotFound;
+        }
+
+        // Reserved units are still part of the batch, so they count towards the capacity
+        int reserved = await db.ReservationLines
+            .Where(l => l.ProductIdRef == productId && l.UserReservation.Status == ReservationStatus.Active)
+            .SumAsync(l => l.Quantity);
+
+        if (batch.InStock + reserved + quantity > batch.Capacity)
+        {
+            return ReturnBatchResult.ExceedsCapacity;
         }
 
         batch.InStock += (uint)quantity;

@@ -6,6 +6,7 @@ using MsStore.Stocks.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<StockDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IInventoryService, InventoryService>();
@@ -19,6 +20,10 @@ builder.Services.AddHttpClient<UserClient>(client =>
     client.BaseAddress = new Uri(usersUrl);
 });
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "Stocks API", Version = "v1" });
+});
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -30,6 +35,12 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Stocks API v1");
+        c.RoutePrefix = string.Empty;
+    });
     app.MapOpenApi();
 }
 

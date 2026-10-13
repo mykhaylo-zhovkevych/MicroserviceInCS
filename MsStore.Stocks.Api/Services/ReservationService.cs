@@ -12,14 +12,14 @@ public class ReservationService(StockDbContext db, IUserSyncService userSyncServ
 {
     public async Task<(CreatedReserveResult Result, ReservationResponse? Reservation)> ReserveBatchAsync(int userId, string category, int quantity)
     {
-        if (await db.Users.AnyAsync(u => u.Id == userId))
+        if (!await db.Users.AnyAsync(u => u.Id == userId))
         {
             // Unknown locally, the replica may just be behind Users.Api
             if (await userSyncService.SyncAllAsync() is null)
             {
                 return (CreatedReserveResult.UsersApiUnavailable, null);
             }
-            if (await db.Users.AnyAsync(u => u.Id == userId))
+            if (!await db.Users.AnyAsync(u => u.Id == userId))
             {
                 return (CreatedReserveResult.NotFound, null);
             }
