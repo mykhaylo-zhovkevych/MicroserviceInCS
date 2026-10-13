@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: stocks-api
-          image: msstore/stocks-api:1.0
+          image: msstore/stocks-api:2.0
           imagePullPolicy: Never      # built by "docker compose build", Docker Desktop k8s sees the same images
           ports:
             - containerPort: 8080     # every API listens on 8080 in ITS OWN pod, no conflict
