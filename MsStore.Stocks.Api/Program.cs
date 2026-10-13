@@ -13,7 +13,6 @@ builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IUserSyncService, UserSyncService>();
 
-// HttpClient for talking to MsStore.Users.Api (a separate process, see its launchSettings.json for the port)
 builder.Services.AddHttpClient<UserClient>(client =>
 {
     var usersUrl = builder.Configuration["UsersApiUrl"] ?? "http://localhost:5154/";

@@ -1,0 +1,70 @@
+name: msstore
+
+x-sql-password: &sql-password ${SA_PASSWORD:-msStoreDevDev26}
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: *sql-password
+    ports:
+      - "14330:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" -b -o /dev/null
+      interval: 5s
+      retries: 30
+      start_period: 15s
+
+  users-api:
+    build:
+      context: .
+      dockerfile: MsStore.Users.Api/Dockerfile
+    image: msstore/users-api:1.0
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mssql,1433;Database=MsStoreUsers;User Id=sa;Password=${SA_PASSWORD:-msStoreDevDev26};TrustServerCertificate=True;Encrypt=True
+    ports:
+      - "6221:8080"
+    depends_on:
+      mssql:
+        condition: service_healthy
+
+  stocks-api:
+    build:
+      context: .
+      dockerfile: MsStore.Stocks.Api/Dockerfile
+    image: msstore/stocks-api:2.0
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mssql,1433;Database=MsStoreStocks;User Id=sa;Password=${SA_PASSWORD:-msStoreDevDev26};TrustServerCertificate=True;Encrypt=True
+      UsersApiUrl: http://users-api:8080/   # service name, not localhost
+    ports:
+      - "6040:8080"
+    depends_on:
+      mssql:
+        condition: service_healthy
+      users-api:
+        condition: service_started
+
+  orders-api:
+    build:
+      context: .
+      dockerfile: MsStore.Orders.Api/Dockerfile
+    image: msstore/orders-api:1.0
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mssql,1433;Database=MsStoreOrders;User Id=sa;Password=${SA_PASSWORD:-msStoreDevDev26};TrustServerCertificate=True;Encrypt=True
+      StockApiUrl: http://stocks-api:8080/
+    ports:
+      - "6126:8080"
+    depends_on:
+      mssql:
+        condition: service_healthy
+      stocks-api:
+        condition: service_started
+
+volumes:
+  mssql-data:
