@@ -1,0 +1,49 @@
+@host = http://localhost:5135/api/stock
+
+### Two batches of the same category
+POST {{host}}/batches
+Content-Type: application/json
+
+{ "productId": 101, "category": "Shoes", "quantity": 3 }
+
+###
+POST {{host}}/batches
+Content-Type: application/json
+
+{ "productId": 102, "category": "Shoes", "quantity": 10 }
+
+### Reserve 5: should take 3 from 101 and 2 from 102
+POST {{host}}/reserve
+Content-Type: application/json
+
+{ "userId": 1, "category": "Shoes", "quantity": 5 }
+
+### Check: 101 -> 0, 102 -> 8
+GET {{host}}/batches
+
+### All reservations of user 1
+GET {{host}}/reservations?userId=1
+
+### Not enough: 409, and batches must be unchanged afterwards
+POST {{host}}/reserve
+Content-Type: application/json
+
+{ "userId": 1, "category": "Shoes", "quantity": 100 }
+
+### Unknown user: 400
+POST {{host}}/reserve
+Content-Type: application/json
+
+{ "userId": 99999, "category": "Shoes", "quantity": 1 }
+
+### Invalid quantity: 400 from validation
+POST {{host}}/reserve
+Content-Type: application/json
+
+{ "userId": 1, "category": "Shoes", "quantity": 0 }
+
+### Release: paste the id from the reserve response, 204, then 101 -> 3, 102 -> 10
+POST {{host}}/reservations/00000000-0000-0000-0000-000000000000/release
+
+### Release again: 409
+POST {{host}}/reservations/00000000-0000-0000-0000-000000000000/release

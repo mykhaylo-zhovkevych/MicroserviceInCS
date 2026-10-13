@@ -17,6 +17,4 @@ public class UserReservation
 
     [Column(TypeName = "nvarchar(16)")]
     public ReservationStatus Status { get; set; } = ReservationStatus.Active;
-
-    // public List<ReservationLine> Lines { get; set; } = [];
 }

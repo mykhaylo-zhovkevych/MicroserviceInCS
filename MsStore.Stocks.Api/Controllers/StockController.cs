@@ -75,7 +75,7 @@ public class StockController(IInventoryService inventoryService, IReservationSer
     [HttpPost("reserve")]
     public async Task<ActionResult<ReservationResponse>> ReserveBatch([FromBody] CreateReservationRequest req)
     {
-        var (result, reservation) = await reservationService.ReserveBatchAsync(req.Category, req.Quantity, req.UserId);
+        var (result, reservation) = await reservationService.ReserveBatchAsync(req.UserId, req.Category, req.Quantity);
         return result switch
         {
             CreatedReserveResult.UsersApiUnavailable => StatusCode(StatusCodes.Status503ServiceUnavailable, "Store.Users.Api is not reachable"),
