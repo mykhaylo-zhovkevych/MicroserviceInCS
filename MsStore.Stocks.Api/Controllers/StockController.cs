@@ -38,14 +38,14 @@ public class StockController(IInventoryService inventoryService, IReservationSer
     }
     
     [HttpDelete("batches/{productId:int}")]
-    public async Task<ActionResult<BatchStock>> DeleteBatch(int productId)
+    public async Task<IActionResult> DeleteBatch(int productId)
     {
         return await inventoryService.DeleteBatchAsync(productId) switch
         {
             DeletedBatchResult.NotFound => NotFound(),
             DeletedBatchResult.HasActiveReservations => Conflict("Batch has active reservations, release them first"),
             DeletedBatchResult.Deleted => NoContent(),
-            _ => NotFound()
+            _ => throw new ArgumentOutOfRangeException()
         };
     }
 
@@ -56,16 +56,20 @@ public class StockController(IInventoryService inventoryService, IReservationSer
         {
             TakeBatchResult.NotFound => NotFound(),
             TakeBatchResult.NotEnough => Conflict("Not enough available stock"),
-            _ => Ok(await inventoryService.GetBatchAsync(productId))
+            TakeBatchResult.Taken => Ok(await inventoryService.GetBatchAsync(productId)),
+            _ => throw new ArgumentOutOfRangeException()
         };
     }
     
     [HttpPost("batches/{productId:int}/return")]
-    public async Task<IActionResult> GiveBack(int productId, [FromQuery, Range(1, 20)] int quantity)
+    public async Task<IActionResult> ReturnBatch(int productId, [FromQuery, Range(1, 20)] int quantity)
     {
-        return await inventoryService.ReturnBatchAsync(productId, quantity)
-            ? Ok(await inventoryService.GetBatchAsync(productId))
-            : NotFound();
+        return await inventoryService.ReturnBatchAsync(productId, quantity) switch
+        {
+            ReturnBatchResult.NotFound => NotFound(),
+            ReturnBatchResult.Returned => Ok(await inventoryService.GetBatchAsync(productId)),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     [HttpPost("reserve")]

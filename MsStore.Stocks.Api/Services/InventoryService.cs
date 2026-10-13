@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MsStore.Stocks.Api.Data;
 using MsStore.Stocks.Api.Domain;
+using MsStore.Stocks.Api.Domain.Enums;
 using MsStore.Stocks.Api.InternalContracts;
 using MsStore.Stocks.Api.Mapping;
 using MsStore.Stocks.Api.Services.Results;
@@ -30,23 +31,62 @@ public class InventoryService(StockDbContext db) : IInventoryService
             .ToListAsync();
     }
 
-    public Task<BatchStock?> GetBatchAsync(int productId)
+    public async Task<BatchStock?> GetBatchAsync(int productId)
     {
-        throw new NotImplementedException();
+        return await db.Batches
+            .Where(b => b.ProductId == productId)
+            .ProjectToStock()
+            .FirstOrDefaultAsync();
     }
 
-    public Task<DeletedBatchResult> DeleteBatchAsync(int productId)
+    public async Task<DeletedBatchResult> DeleteBatchAsync(int productId)
     {
-        throw new NotImplementedException();
+        Batch? batch = await db.Batches.FindAsync(productId);
+        if (batch is null)
+        {
+            return DeletedBatchResult.NotFound;
+        }
+
+        bool hasActiveReservation = await db.ReservationLines.AnyAsync(l =>
+            l.ProductIdRef == productId && l.UserReservation.Status == ReservationStatus.Active);
+        if (hasActiveReservation)
+        {
+            return DeletedBatchResult.HasActiveReservations;
+        }
+
+        db.Batches.Remove(batch);
+        await db.SaveChangesAsync();
+        return DeletedBatchResult.Deleted;
     }
 
-    public Task<TakeBatchResult> TakeBatchAsync(int productId, int quantity)
+    public async Task<TakeBatchResult> TakeBatchAsync(int productId, int quantity)
     {
-        throw new NotImplementedException();
+        Batch? batch = await db.Batches.FindAsync(productId);
+        if (batch is null)
+        {
+            return TakeBatchResult.NotFound;
+        }
+
+        if (batch.InStock < quantity)
+        {
+            return TakeBatchResult.NotEnough;
+        }
+
+        batch.InStock -= (uint)quantity;
+        await db.SaveChangesAsync();
+        return TakeBatchResult.Taken;
     }
 
-    public Task<bool> ReturnBatchAsync(int productId, int quantity)
+    public async Task<ReturnBatchResult> ReturnBatchAsync(int productId, int quantity)
     {
-        throw new NotImplementedException();
+        Batch? batch = await db.Batches.FindAsync(productId);
+        if (batch is null)
+        {
+            return ReturnBatchResult.NotFound;
+        }
+
+        batch.InStock += (uint)quantity;
+        await db.SaveChangesAsync();
+        return ReturnBatchResult.Returned;
     }
 }

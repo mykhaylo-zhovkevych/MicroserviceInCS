@@ -12,5 +12,5 @@ public interface IInventoryService
 
     Task<DeletedBatchResult> DeleteBatchAsync(int productId);
     Task<TakeBatchResult> TakeBatchAsync(int productId, int quantity);
-    Task<bool> ReturnBatchAsync(int productId, int quantity);
+    Task<ReturnBatchResult> ReturnBatchAsync(int productId, int quantity);
 }

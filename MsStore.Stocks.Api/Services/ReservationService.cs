@@ -1,9 +1,10 @@
+using MsStore.Stocks.Api.Data;
 using MsStore.Stocks.Api.InternalContracts;
 using MsStore.Stocks.Api.Services.Results;
 
 namespace MsStore.Stocks.Api.Services;
 
-public class ReservationService : IReservationService
+public class ReservationService(StockDbContext db, IUserSyncService userSyncService) : IReservationService
 {
     public Task<(CreatedReserveResult Result, ReservationResponse? Reservation)> ReserveBatchAsync(string category, int quantity, int userId)
     {
