@@ -7,7 +7,7 @@ using MsStore.Stocks.Api.Mapping;
 namespace MsStore.Stocks.Api.Services;
 
 // Keeps the local UserReplica table in line with Users.Api, so reservations can check users without a network call
-public class UserSyncService(StockDbContext dbContext, UserClient userClient)
+public class UserSyncService(StockDbContext dbContext, UserClient userClient) : IUserSyncService
 {
     public async Task<List<UserReplica>> GetUsersAsync()
     {

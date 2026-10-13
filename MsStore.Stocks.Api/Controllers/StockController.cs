@@ -1,7 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using MsStore.Stocks.Api.Domain;
 using MsStore.Stocks.Api.InternalContracts;
 using MsStore.Stocks.Api.Services;
 using MsStore.Stocks.Api.Services.Results;
@@ -10,7 +8,7 @@ namespace MsStore.Stocks.Api.Controllers;
 
 [ApiController]
 [Route ("api/[controller]")]
-public class StockController(InventoryService inventoryService) : ControllerBase
+public class StockController(IInventoryService inventoryService, IReservationService reservationService) : ControllerBase
 {
     [HttpPost("batches")]
     public async Task<IActionResult> CreateBatch(CreateBatchRequest req)
@@ -65,7 +63,7 @@ public class StockController(InventoryService inventoryService) : ControllerBase
     [HttpPost("batches/{productId:int}/return")]
     public async Task<IActionResult> GiveBack(int productId, [FromQuery, Range(1, 20)] int quantity)
     {
-        return await inventoryService.GiveBackAsync(productId, quantity)
+        return await inventoryService.ReturnBatchAsync(productId, quantity)
             ? Ok(await inventoryService.GetBatchAsync(productId))
             : NotFound();
     }
@@ -73,7 +71,7 @@ public class StockController(InventoryService inventoryService) : ControllerBase
     [HttpPost("reserve")]
     public async Task<ActionResult<ReservationResponse>> ReserveBatch([FromBody] CreateReservationRequest req)
     {
-        var (result, reservation) = await inventoryService.ReserveBatchAsync(req.Category, req.Quantity, req.UserId);
+        var (result, reservation) = await reservationService.ReserveBatchAsync(req.Category, req.Quantity, req.UserId);
         return result switch
         {
             CreatedReserveResult.UsersApiUnavailable => StatusCode(StatusCodes.Status503ServiceUnavailable, "Store.Users.Api is not reachable"),
@@ -86,7 +84,7 @@ public class StockController(InventoryService inventoryService) : ControllerBase
     [HttpPost("reservations/{id:guid}/release")]
     public async Task<IActionResult> ReservationRelease(Guid id)
     {
-        return await inventoryService.ReservationReleaseAsync(id) switch
+        return await reservationService.ReservationReleaseAsync(id) switch
         {
             ReleaseReservationResult.NotFound => NotFound(),
             ReleaseReservationResult.AlreadyReleased => Conflict("Reservation cannot be released"),
@@ -97,14 +95,14 @@ public class StockController(InventoryService inventoryService) : ControllerBase
     [HttpGet("reservations")]
     public async Task<ActionResult<List<ReservationResponse>>> GetReservations(int? userId, string? category)
     {
-        List<ReservationResponse> reservations = await inventoryService.GetReservationsAsync(userId, category);
+        List<ReservationResponse> reservations = await reservationService.GetReservationsAsync(userId, category);
         return reservations;
     }
 
     [HttpGet("reservations/{id:guid}")]
     public async Task<ActionResult<ReservationResponse>> GetReservation(Guid id)
     {
-        ReservationResponse? reservation = await inventoryService.GetReservationAsync(id);
+        ReservationResponse? reservation = await reservationService.GetReservationAsync(id);
         return reservation is null ? NotFound() : Ok(reservation);
     }
 }

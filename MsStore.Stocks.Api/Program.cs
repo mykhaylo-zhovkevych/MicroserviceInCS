@@ -8,8 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<StockDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<InventoryService>();
-builder.Services.AddScoped<UserSyncService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IUserSyncService, UserSyncService>();
 
 // HttpClient for talking to MsStore.Users.Api (a separate process, see its launchSettings.json for the port)
 builder.Services.AddHttpClient<UserClient>(client =>

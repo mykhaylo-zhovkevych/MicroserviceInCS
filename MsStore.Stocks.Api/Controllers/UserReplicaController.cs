@@ -7,7 +7,7 @@ namespace MsStore.Stocks.Api.Controllers;
 
 [ApiController]
 [Route("api/stock/users")]
-public class UserReplicaController(UserSyncService userSyncService) : ControllerBase
+public class UserReplicaController(IUserSyncService userSyncService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<UserReplica>>> GetUsers()
